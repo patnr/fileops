@@ -78,24 +78,6 @@ pats = {'rms.*observed':1,
         'lorenz.96':0,
         'assimilation':0}
 
-def grep():
-    for f_full, root, f_rel, f in walk(wd):
-        with read(f_full) as F:
-            lines = [line for line in F]
-
-            matches = {}
-            for pat in pats:
-                matches[pat] = any(re.search(pat,line,flags) for line in lines)
-
-            if all(matches.values()):
-                for i,line in enumerate(lines):
-                    for pat, do_print in pats.items():
-                        if do_print:
-                            m = re.search(pat,line,flags)
-                            if m:
-                                print_match(f_rel,i,line,m)
-
-
 def walk(directory):
   for root, dirs, files in os.walk(wd):               # Walk dirs
     if any([s in root for s in dx]): continue         # exclude dirs
@@ -109,15 +91,6 @@ def walk(directory):
             f_rel   = os.path.relpath(f_full,wd)
             yield f_full, root, f_rel, f
 
-
-
-@contextmanager
-def read(fname):
-    with open(fname) as f:
-        try:
-            yield f
-        except UnicodeDecodeError:
-            pass
 
 @contextmanager
 def rewrite(fname):
@@ -168,27 +141,8 @@ def print_change(newline):
     print(' '*(47-len(arrow)) + arrow + newline, end='')
 
 
-def wc(filename, arg='-l'):
-    output = check_output(["wc", arg, filename])
-    return int(output.split()[0])
-
-def file_tree_print():
-  root_old = None
-  for f_full, root, f_rel, f in walk(wd):
-    root = os.path.relpath(root,wd)
-    if root != root_old:
-      root_old = root
-      path = root.split(os.sep)
-      print((len(path)-2)*'  |'+'  /',end='')
-      print_c(os.path.basename(root))
-    print(len(path)*'  |', f)
-
-
 if __name__ == '__main__':
-    # file_tree_print()
-    # wc()
-    # replace()
-    grep()
+    replace()
 
 
 
